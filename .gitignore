@@ -1,0 +1,27 @@
+Set-Content .gitignore @"
+# --- Python & Cache Artifacts ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+
+# --- Jupyter Notebook Cache ---
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# --- Dataset (Kunci folder data secara total) ---
+data/
+data/raw/
+data/processed/
+
+# --- Model Weights ---
+saved_models/*.pth
+
+# --- Operating System Garbage ---
+.DS_Store
+Thumbs.db
+"@
