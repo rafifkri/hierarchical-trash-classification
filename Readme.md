@@ -1,6 +1,47 @@
-# Klasifikasi Sampah Bertingkat Menggunakan Pendekatan Hierarchical Classification
+# **Klasifikasi Sampah Bertingkat Menggunakan Pendekatan Hierarchical dengan Vision Transformer pada Level Super-Class dan MobileNetV3 serta ConvNeXt-Tiny pada Sub-Class**
 
-Proyek ini merupakan implementasi sistem klasifikasi citra sampah secara bertingkat (Hierarchical Classification) untuk mengelompokkan data ke dalam 9 kelas akhir. Pendekatan ini membagi beban kerja evaluasi menjadi dua tingkatan arsitektur guna meminimalkan ruang pencarian kelas dan mengoptimalkan akurasi klasifikasi akhir.
+## **Latar Belakang**
+
+Pengelolaan sampah merupakan salah satu tantangan utama dalam menjaga kelestarian lingkungan. Seiring dengan meningkatnya jumlah penduduk dan aktivitas manusia, volume sampah yang dihasilkan terus bertambah sehingga proses pemilahan sampah secara manual menjadi kurang efisien, membutuhkan waktu yang lama, serta rentan terhadap kesalahan manusia (human error). Kondisi tersebut menyebabkan proses daur ulang menjadi kurang optimal karena banyak sampah yang tidak dipisahkan sesuai dengan jenisnya.
+
+Perkembangan teknologi Artificial Intelligence (AI), khususnya Deep Learning, memberikan solusi dalam proses klasifikasi citra secara otomatis. Berbagai penelitian menunjukkan bahwa model Deep Learning mampu mengenali objek berdasarkan karakteristik visual seperti bentuk, warna, tekstur, dan pola dengan tingkat akurasi yang tinggi. Oleh karena itu, teknologi ini dapat dimanfaatkan untuk membantu proses klasifikasi sampah secara otomatis sehingga mendukung sistem pengelolaan sampah yang lebih cepat, akurat, dan efisien.
+
+Pada penelitian ini dikembangkan sistem klasifikasi sampah menggunakan pendekatan Hierarchical Classification. Pendekatan ini membagi proses klasifikasi menjadi dua tahap. Tahap pertama menggunakan Vision Transformer (ViT-B/16) untuk mengklasifikasikan sampah menjadi dua kategori utama, yaitu Organik dan Anorganik. Selanjutnya, hasil klasifikasi tersebut diteruskan ke model khusus, yaitu MobileNetV3 untuk klasifikasi sampah organik dan ConvNeXt-Tiny untuk klasifikasi sampah anorganik. Pendekatan bertingkat ini diharapkan mampu meningkatkan akurasi klasifikasi karena setiap model hanya berfokus pada kategori yang lebih spesifik.
+
+# ♻️ Sistem Klasifikasi Citra Sampah 9 Kelas menggunakan Pipeline Hierarchical Classification Berbasis Arsitektur Heterogen
+
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
+[![Framework](https://img.shields.io/badge/Architecture-Heterogeneous_Hybrid-success)](https://github.com/)
+
+Repositori ini berisi implementasi proyek *Deep Learning* untuk klasifikasi citra sampah ke dalam 9 kelas spesifik menggunakan metode **Hierarchical Classification Pipeline** (Klasifikasi Bertingkat). Sistem ini mengombinasikan arsitektur Vision Transformer (ViT) dan Convolutional Neural Network (CNN) modern secara sekuensial guna meminimalkan kerancuan visual antar-kelas.
+
+---
+
+## **Core Novelty & Research Gap Solutions**
+
+Mayoritas model klasifikasi sampah konvensional mengadopsi pendekatan satu tingkat (*flat classification*), di mana satu jaringan saraf dipaksa untuk langsung menebak banyak kelas sekaligus secara acak, seperti yang dilakukan pada riset **Insel dkk. (2026)**, **Aulia dkk. (2024)**, serta **Keskin dkk. (2023)**. Pendekatan ini rentan mengalami penurunan akurasi akibat tingginya ambiguitas visual antar-kategori (*inter-class similarity*), misalnya kertas putih (`Paper`) yang sering tertukar dengan tisu makan bekas (`Food Organics`). 
+
+Meskipun model hibrida mutakhir seperti **HR-ViT (Husein dkk., 2025)** dan **SwinConvNeXt (Madhavi dkk., 2025)** mencoba menggabungkan CNN dan Transformer untuk mendongkrak akurasi, model tunggal tersebut tetap memiliki ruang pencarian (*search space*) yang terlalu luas.
+
+Untuk mengatasi celah riset (*research gap*) tersebut, proyek ini menawarkan **Natural Heterogeneous Hierarchical Classification Pipeline**. Sistem ini menyelaraskan pemilihan model berdasarkan karakteristik alami data dan tingkat kesulitan visual di setiap tingkatan hierarki:
+
+### **Spesifikasi Arsitektur Bertingkat**
+
+| Tingkatan Hierarki | Arsitektur Model | Peran & Mekanisme Spesifik | Dukungan Ilmiah & Jurnal |
+| :--- | :--- | :--- | :--- |
+| **Level 1: Root Model** | **Vision Transformer (ViT-B/16)** | **Natural Macro Splitting**:<br>Memisahkan citra input ke dalam domain makro: `Organic` vs `Inorganic`. | Memanfaatkan **Mekanisme Self-Attention** untuk menangkap konteks global citra, mengamankan rute awal, dan mencegah efek domino salah klasifikasi sesuai prinsip **Panaroma & Al Rivan (2026)**. |
+| **Level 2: Sub-Model A** | **MobileNetV3-Large** | **Lightweight Homogeneous Expert**:<br>Mengklasifikasikan klaster organik menjadi kelas akhir: `Food Organics` dan `Vegetation`. | Klaster organik memiliki jumlah kelas yang sedikit dan fitur yang homogen. Sesuai temuan **Tian dkk. (2024)**, arsitektur ini memaksimalkan kecepatan inferensi dan menghemat memori komputasi. |
+| **Level 2: Sub-Model B** | **ConvNeXt-Tiny** | **State-of-the-Art Spatial Expert**:<br>Mengurai 7 kelas anorganik kompleks (`Cardboard`, `Plastic`, `Metal`, dll). | Sampah anorganik di lapangan memiliki distorsi geometri yang tinggi (botol remuk, kaleng penyok). ConvNeXt sangat superior dalam mengekstrak fitur spasial lokal yang rumit berdasarkan keberhasilan riset **TrashNeXt (Tanvir dkk., 2025)**. |
+
+###  **Kontribusi Teknis Utama**
+* **Reduksi Ruang Pencarian (*Search Space Reduction*):** Memecah masalah *flat* 9 kelas menjadi keputusan mikro sekuensial ($1 \rightarrow 2$ kelas dan $1 \rightarrow 7$ kelas) untuk mempertajam batas keputusan (*decision boundary*).
+* **Penyelarasan Industri (*Natural Splitting*):** Alur kerja Level 1 langsung mencerminkan kebutuhan industri daur ulang nyata, di mana sampah basah (organik) harus dipisahkan sejak awal dari komoditas kering (anorganik) untuk menghindari kontaminasi material.
+* **Imbalance-Aware Training via Weighted Loss:** Mengatasi masalah ketimpangan jumlah data lintas kelas (*class imbalance*) yang disoroti oleh **Insel (2026)** menggunakan teknik *Inverse Class Frequency Weighting* secara independen di setiap sub-pipeline demi mengamankan nilai **F1-Macro Score** yang objektif.
+
+---
+
+## **Alur Kerja Sistem (Pipeline)**
 
 ## Arsitektur Sistem
 
